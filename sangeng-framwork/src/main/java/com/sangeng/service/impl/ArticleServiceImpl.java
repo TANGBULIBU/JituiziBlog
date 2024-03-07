@@ -26,6 +26,7 @@ import java.util.List;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         implements ArticleService {
 
+    //查询热门文章
     @Override
     public ResponseResult hotArticleList() {
 
@@ -35,17 +36,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         //按照浏览量进行排序 降序排序
         queryWrapper.orderByDesc(Article::getViewCount);
 
-        Page<Article> page = new Page(1, 10);
+        //分页显示 当前显示第一页数据
+        Page<Article> page = new Page(SystemConstants.ARTICLE_STATUS_CURRENT, SystemConstants.ARTICLE_STATUS_SIZE);
         //翻页对象
         page(page, queryWrapper);
         //获取最终的查询结果，把结果封装在Article实体类里面会有很多不需要的字段
         List<Article> articles = page.getRecords();
 
         //bean拷贝 目的是减少查询信息的次数
-        List<HotArticleVo> hotArticleVos=new ArrayList<>();
 
-        BeanCopyUtils.copyBeanList(articles,HotArticleVo.class);
+        List<HotArticleVo> hotArticleVos1 = BeanCopyUtils.copyBeanList(articles, HotArticleVo.class);
 
+//        List<HotArticleVo> hotArticleVos=new ArrayList<>();
 //        for (Article article : articles) {
 //            HotArticleVo vo = new HotArticleVo();
 //
@@ -57,7 +59,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 //        }
 
 
-        return ResponseResult.okResult(hotArticleVos);
+        return ResponseResult.okResult(hotArticleVos1);
 //        return ResponseResult.okResult(articles);
     }
 }

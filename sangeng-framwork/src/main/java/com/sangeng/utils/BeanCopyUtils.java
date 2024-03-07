@@ -1,7 +1,6 @@
 package com.sangeng.utils;
 
-import com.sangeng.domain.entity.Article;
-import com.sangeng.domain.vo.HotArticleVo;
+
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;
