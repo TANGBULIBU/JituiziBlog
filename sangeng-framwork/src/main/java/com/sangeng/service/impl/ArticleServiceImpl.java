@@ -6,16 +6,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sangeng.constants.SystemConstants;
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.domain.entity.Article;
+import com.sangeng.domain.vo.ArticleListVo;
 import com.sangeng.domain.vo.HotArticleVo;
+import com.sangeng.domain.vo.PageVo;
 import com.sangeng.mapper.ArticleMapper;
 import com.sangeng.service.ArticleService;
 import com.sangeng.utils.BeanCopyUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author 77943
@@ -25,6 +29,9 @@ import java.util.List;
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         implements ArticleService {
+
+    @Autowired
+    private ArticleMapper articleMapper;
 
     //查询热门文章
     @Override
@@ -45,7 +52,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
         //bean拷贝 目的是减少查询信息的次数
 
-        List<HotArticleVo> hotArticleVos1 = BeanCopyUtils.copyBeanList(articles, HotArticleVo.class);
+        List<HotArticleVo> hotArticleVos = BeanCopyUtils.copyBeanList(articles, HotArticleVo.class);
 
 //        List<HotArticleVo> hotArticleVos=new ArrayList<>();
 //        for (Article article : articles) {
@@ -59,8 +66,34 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 //        }
 
 
-        return ResponseResult.okResult(hotArticleVos1);
+        return ResponseResult.okResult(hotArticleVos);
 //        return ResponseResult.okResult(articles);
+    }
+
+    //分页查询文章的列表
+    @Override
+    public ResponseResult articleList(Integer pageNum, Integer pageSize, Long categoryId) {
+        LambdaQueryWrapper<Article> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //判空。如果前端传了categoryId这个参数，那么查询时要和传入的相同。第二个参数是数据表的文章id，第三个字段是前端传来的文章id
+        lambdaQueryWrapper.eq(Objects.nonNull(categoryId)&&categoryId>0, Article::getCategoryId,categoryId);
+
+        //只查询状态是正式发布的文章。Article实体类的status字段跟0作比较，一样就表示是正式发布的
+        lambdaQueryWrapper.eq(Article::getStatus,SystemConstants.ARTICLE_STATUS_NORMAL);
+
+        //对isTop字段进行降序排序，实现置顶的文章(isTop值为1)在最前面
+        lambdaQueryWrapper.orderByDesc(Article::getIsTop);
+
+        //分页查询
+        Page<Article> page = new Page<>(pageNum,pageSize);
+        page(page,lambdaQueryWrapper);
+
+        //把最后的查询结果封装成ArticleListVo(我们写的实体类)。BeanCopyUtils是我们写的工具类
+        List<ArticleListVo> articleListVos = BeanCopyUtils.copyBeanList(page.getRecords(), ArticleListVo.class);
+
+        //把上面那行的查询结果和文章总数封装在PageVo(我们写的实体类)
+        PageVo pageVo = new PageVo(articleListVos,page.getTotal());
+        return ResponseResult.okResult(pageVo);
+
     }
 }
 
