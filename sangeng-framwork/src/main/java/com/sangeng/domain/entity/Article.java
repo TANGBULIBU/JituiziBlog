@@ -3,11 +3,13 @@ package com.sangeng.domain.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 文章表
@@ -17,6 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("sg_article")
+@Accessors(chain = true)
 public class Article implements Serializable {
     @TableId
     /**
@@ -43,6 +46,10 @@ public class Article implements Serializable {
      * 所属分类id
      */
     private Long categoryId;
+
+    //此处需要添加注解 取消其自动映射 实体类中不存在的内容
+    @TableField(exist = false)
+    private String categoryName;
 
     /**
      * 缩略图
