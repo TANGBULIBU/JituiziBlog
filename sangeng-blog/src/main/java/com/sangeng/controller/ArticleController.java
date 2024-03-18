@@ -12,11 +12,6 @@ public class ArticleController {
     @Autowired
     private ArticleService articleService;
 
-//    @GetMapping("/list")
-//    public List<Article> test(){
-//        return articleService.list();
-//    }
-
     //热点标题
     @GetMapping("/hotArticleList")
     public ResponseResult hotArticleList() {
@@ -26,13 +21,15 @@ public class ArticleController {
         return result;
 
     }
-
+    //分页查询 根据分类id
     @GetMapping("/articleList")
     public ResponseResult articleList(Integer pageNum, Integer pageSize, Long categoryId) {
-        //查询热门文章 controller不能直接查询 需要使用service
-
         return articleService.articleList(pageNum, pageSize, categoryId);
+    }
 
-
+    //查询文章详情
+    @GetMapping("/{id}")
+    public ResponseResult getArticleDetail(@PathVariable("id") Long id) {
+        return articleService.getArticleDetail(id);
     }
 }

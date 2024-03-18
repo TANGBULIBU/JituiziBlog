@@ -7,6 +7,7 @@ import com.sangeng.constants.SystemConstants;
 import com.sangeng.domain.Category;
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.domain.entity.Article;
+import com.sangeng.domain.vo.ArticleDetailVo;
 import com.sangeng.domain.vo.ArticleListVo;
 import com.sangeng.domain.vo.HotArticleVo;
 import com.sangeng.domain.vo.PageVo;
@@ -111,6 +112,29 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         PageVo pageVo = new PageVo(articleListVos, page.getTotal());
         return ResponseResult.okResult(pageVo);
 
+    }
+
+    //查询文章详情
+    @Override
+    public ResponseResult getArticleDetail(Long id) {
+        //根据id查询文章
+        Article article = getById(id);
+
+        //将获取到的传入的id的文章  转换成vo实体类
+        ArticleDetailVo articleDetailVo = BeanCopyUtils.copyBean(article, ArticleDetailVo.class);
+
+        //根据分类id查询类名
+        Long categoryId = articleDetailVo.getCategoryId();
+//        String categoryName = categoryService.getById(categoryId).getName();
+        //使用mapper查询数据库
+        Category category = categoryService.getById(categoryId);
+
+        if (category!=null){
+           articleDetailVo.setCategoryName(category.getName());
+        }
+        //封装响应返回数据
+
+        return ResponseResult.okResult(articleDetailVo);
     }
 }
 
